@@ -1,10 +1,12 @@
-public class Service {
-    private  double price;
-    private String nameService;
+package model;
 
-    public Service(double price, String nameService) {
+public class Amenity {
+    private  double price;
+    private String name;
+
+    public Amenity(String name, double price) {
         this.price = price;
-        this.nameService = nameService;
+        this.name = name;
     }
 
     public double getPrice() {
@@ -18,11 +20,12 @@ public class Service {
         this.price = price;
     }
 
-    public String getNameService() {
-        return nameService;
+    public String getName() {
+        return name;
     }
 
-    public void setNameService(String nameService) {
-        this.nameService = nameService;
+    public void setName(String name) {
+        this.name = name;
     }
+
 }

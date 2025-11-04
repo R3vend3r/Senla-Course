@@ -1,5 +1,6 @@
+package enums;
 
-public enum StatusRoom {
+public enum RoomCondition {
     ON_REPAIR,
     READY,
     CLEANING_REQUIRED;

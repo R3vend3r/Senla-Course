@@ -1,10 +1,10 @@
+package model;
 import java.util.UUID;
 
 public class Client {
     private String name;
     private String surname;
-    private  String id;
-    private Room roomLive;
+    private final String id;
 
     public Client(String surname, String name) {
         this.surname = surname;
@@ -34,14 +34,6 @@ public class Client {
 
     public String getClientId() {
         return id;
-    }
-
-    public void setRoomLive(Room room) {
-        this.roomLive = room;
-    }
-
-    public Room getRoomLive() {
-        return roomLive;
     }
 
 }
