@@ -1,9 +1,7 @@
 package interfaceClass;
 
 import enums.SortType;
-import model.AmenityOrder;
 import model.*;
-import model.RoomBooking;
 
 import java.util.Date;
 import java.util.List;
@@ -15,7 +13,7 @@ public interface IOrderRepository {
     AmenityOrder addAmenityOrder(Client client, Amenity amenity, Date serviceDate);
     void completeRoomBooking(int roomNumber, Date checkOutDate);
     List<RoomBooking> getActiveBookings();
-    double calculatingTotalIncome();
+    double calculateTotalIncome();
     double calculateAmenityCost(int roomNumber);
     double calculateStayCost(double priceForDay, Date checkInDate, Date endDate);
     List<AmenityOrder> getAmenityOrders();

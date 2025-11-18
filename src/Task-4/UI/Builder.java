@@ -14,134 +14,187 @@ public class Builder implements Action {
 
     private void buildMenu() {
         rootMenu = new Menu("Главное меню гостиницы");
+        addMainMenuItems();
+    }
 
-        rootMenu.addMenuItem(new MenuItem("Номера", null, buildRoomsMenu()));
+    private void addMainMenuItems() {
+        rootMenu.addMenuItem(createMenuItem("Номера", null, buildRoomsMenu()));
+        rootMenu.addMenuItem(createMenuItem("Клиенты", null, buildClientsMenu()));
+        rootMenu.addMenuItem(createMenuItem("Услуги", null, buildAmenitiesMenu()));
+        rootMenu.addMenuItem(createMenuItem("Отчеты", null, buildReportsMenu()));
+        rootMenu.addMenuItem(createMenuItem("Операции", null, buildOperationsMenu()));
+    }
 
-        rootMenu.addMenuItem(new MenuItem("Клиенты", null, buildClientsMenu()));
-
-        rootMenu.addMenuItem(new MenuItem("Услуги", null, buildAmenitiesMenu()));
-
-        rootMenu.addMenuItem(new MenuItem("Отчеты", null, buildReportsMenu()));
-
-        rootMenu.addMenuItem(new MenuItem("Операции", null, buildOperationsMenu()));
+    private MenuItem createMenuItem(String title, Action action, Menu nextMenu) {
+        return new MenuItem(title, action, nextMenu);
     }
 
     private Menu buildRoomsMenu() {
-        System.out.println();
         Menu roomsMenu = new Menu("Управление номерами");
-
-        roomsMenu.addMenuItem(new MenuItem("Добавить номер", actionFactory.addRoomAction(), null));
-        roomsMenu.addMenuItem(new MenuItem("Изменить статус номера", actionFactory.changeRoomStatusAction(), null));
-        roomsMenu.addMenuItem(new MenuItem("Изменить цену номера", actionFactory.updateRoomPriceAction(), null));
-
-        Menu viewRoomsMenu = new Menu("Просмотр номеров");
-        viewRoomsMenu.addMenuItem(new MenuItem("Все номера", actionFactory.getAllRoomsAction(), null));
-        viewRoomsMenu.addMenuItem(new MenuItem("Свободные номера", actionFactory.getAllAvailableRoomsAction(), null));
-
-        Menu sortRoomsMenu = new Menu("Сортировка номеров");
-        sortRoomsMenu.addMenuItem(new MenuItem("По цене", actionFactory.getAllRoomsSortedByPriceAction(), null));
-        sortRoomsMenu.addMenuItem(new MenuItem("По вместимости", actionFactory.getAllRoomsSortedByCapacityAction(), null));
-        sortRoomsMenu.addMenuItem(new MenuItem("По звездам", actionFactory.getAllRoomsSortedByStarsAction(), null));
-        sortRoomsMenu.addMenuItem(new MenuItem("По типу", actionFactory.getAllRoomsSortedByTypeAction(), null));
-
-        // Сортировка свободных номеров
-        Menu sortAvailableRoomsMenu = new Menu("Сортировка свободных номеров");
-        sortAvailableRoomsMenu.addMenuItem(new MenuItem("По цене", actionFactory.getAllAvailableRoomsSortedByPriceAction(), null));
-        sortAvailableRoomsMenu.addMenuItem(new MenuItem("По вместимости", actionFactory.getAllAvailableRoomsSortedByCapacityAction(), null));
-        sortAvailableRoomsMenu.addMenuItem(new MenuItem("По звездам", actionFactory.getAllAvailableRoomsSortedByStarsAction(), null));
-        sortAvailableRoomsMenu.addMenuItem(new MenuItem("По типу", actionFactory.getAllAvailableRoomsSortedByTypeAction(), null));
-
-
-        viewRoomsMenu.addMenuItem(new MenuItem("Сортировка всех", null, sortRoomsMenu));
-        viewRoomsMenu.addMenuItem(new MenuItem("Сортировка свободных", null, sortAvailableRoomsMenu));
-        roomsMenu.addMenuItem(new MenuItem("Просмотр номеров", null, viewRoomsMenu));
-
-        // Детали номера
-        roomsMenu.addMenuItem(new MenuItem("Детали номера", actionFactory.getRoomDetailsAction(), null));
-
+        addRoomManagementItems(roomsMenu);
+        addRoomViewingSubmenu(roomsMenu);
+        roomsMenu.addMenuItem(createMenuItem("Детали номера", actionFactory.showRoomDetailsAction(), null));
         return roomsMenu;
+    }
+
+    private void addRoomManagementItems(Menu roomsMenu) {
+        roomsMenu.addMenuItem(createMenuItem("Добавить номер", actionFactory.addRoomAction(), null));
+        roomsMenu.addMenuItem(createMenuItem("Изменить статус номера", actionFactory.changeRoomStatusAction(), null));
+        roomsMenu.addMenuItem(createMenuItem("Изменить цену номера", actionFactory.updateRoomPriceAction(), null));
+    }
+
+    private void addRoomViewingSubmenu(Menu roomsMenu) {
+        Menu viewRoomsMenu = createViewRoomsMenu();
+        Menu sortRoomsMenu = createSortRoomsMenu();
+        Menu sortAvailableRoomsMenu = createSortAvailableRoomsMenu();
+
+        viewRoomsMenu.addMenuItem(createMenuItem("Сортировка всех", null, sortRoomsMenu));
+        viewRoomsMenu.addMenuItem(createMenuItem("Сортировка свободных", null, sortAvailableRoomsMenu));
+        roomsMenu.addMenuItem(createMenuItem("Просмотр номеров", null, viewRoomsMenu));
+    }
+
+    private Menu createViewRoomsMenu() {
+        Menu viewRoomsMenu = new Menu("Просмотр номеров");
+        viewRoomsMenu.addMenuItem(createMenuItem("Все номера", actionFactory.showAllRoomsAction(), null));
+        viewRoomsMenu.addMenuItem(createMenuItem("Свободные номера", actionFactory.showAllAvailableRoomsAction(), null));
+        return viewRoomsMenu;
+    }
+
+    private Menu createSortRoomsMenu() {
+        Menu sortRoomsMenu = new Menu("Сортировка номеров");
+        sortRoomsMenu.addMenuItem(createMenuItem("По цене", actionFactory.showRoomsSortedByPriceAction(), null));
+        sortRoomsMenu.addMenuItem(createMenuItem("По вместимости", actionFactory.showRoomsSortedByCapacityAction(), null));
+        sortRoomsMenu.addMenuItem(createMenuItem("По звездам", actionFactory.showRoomsSortedByStarsAction(), null));
+        sortRoomsMenu.addMenuItem(createMenuItem("По типу", actionFactory.showRoomsSortedByTypeAction(), null));
+        return sortRoomsMenu;
+    }
+
+    private Menu createSortAvailableRoomsMenu() {
+        Menu sortAvailableRoomsMenu = new Menu("Сортировка свободных номеров");
+        sortAvailableRoomsMenu.addMenuItem(createMenuItem("По цене", actionFactory.showAvailableRoomsSortedByPriceAction(), null));
+        sortAvailableRoomsMenu.addMenuItem(createMenuItem("По вместимости", actionFactory.showAvailableRoomsSortedByCapacityAction(), null));
+        sortAvailableRoomsMenu.addMenuItem(createMenuItem("По звездам", actionFactory.showAvailableRoomsSortedByStarsAction(), null));
+        sortAvailableRoomsMenu.addMenuItem(createMenuItem("По типу", actionFactory.showAvailableRoomsSortedByTypeAction(), null));
+        return sortAvailableRoomsMenu;
     }
 
     private Menu buildClientsMenu() {
         Menu clientsMenu = new Menu("Управление клиентами");
-
-        // Основные операции
-        clientsMenu.addMenuItem(new MenuItem("Зарегистрировать и поселить", actionFactory.settleClientAction(), null));
-        clientsMenu.addMenuItem(new MenuItem("Выселить клиента", actionFactory.evictClientAction(), null));
-        clientsMenu.addMenuItem(new MenuItem("Найти клиента", actionFactory.findClientByIdAction(), null));
-
-        // Просмотр клиентов
-        Menu viewClientsMenu = new Menu("Просмотр клиентов");
-        viewClientsMenu.addMenuItem(new MenuItem("Все клиенты", actionFactory.getAllClientsSortedByNoneAction(), null));
-
-        // Сортировка клиентов
-        Menu sortClientsMenu = new Menu("Сортировка клиентов");
-        sortClientsMenu.addMenuItem(new MenuItem("По алфавиту", actionFactory.getAllClientsSortedByAlphabetAction(), null));
-        sortClientsMenu.addMenuItem(new MenuItem("По дате выезда", actionFactory.getAllClientsSortedByDateEndAction(), null));
-
-        viewClientsMenu.addMenuItem(new MenuItem("Сортировка", null, sortClientsMenu));
-        clientsMenu.addMenuItem(new MenuItem("Просмотр клиентов", null, viewClientsMenu));
-
+        addClientManagementItems(clientsMenu);
+        addClientViewingSubmenu(clientsMenu);
         return clientsMenu;
+    }
+
+    private void addClientManagementItems(Menu clientsMenu) {
+        clientsMenu.addMenuItem(createMenuItem("Зарегистрировать и поселить", actionFactory.settleClientAction(), null));
+        clientsMenu.addMenuItem(createMenuItem("Выселить клиента", actionFactory.evictClientAction(), null));
+        clientsMenu.addMenuItem(createMenuItem("Найти клиента", actionFactory.findClientByIdAction(), null));
+    }
+
+    private void addClientViewingSubmenu(Menu clientsMenu) {
+        Menu viewClientsMenu = createViewClientsMenu();
+        Menu sortClientsMenu = createSortClientsMenu();
+
+        viewClientsMenu.addMenuItem(createMenuItem("Сортировка", null, sortClientsMenu));
+        clientsMenu.addMenuItem(createMenuItem("Просмотр клиентов", null, viewClientsMenu));
+    }
+
+    private Menu createViewClientsMenu() {
+        Menu viewClientsMenu = new Menu("Просмотр клиентов");
+        viewClientsMenu.addMenuItem(createMenuItem("Все клиенты", actionFactory.showAllClientsAction(), null));
+        return viewClientsMenu;
+    }
+
+    private Menu createSortClientsMenu() {
+        Menu sortClientsMenu = new Menu("Сортировка клиентов");
+        sortClientsMenu.addMenuItem(createMenuItem("По алфавиту", actionFactory.showClientsSortedByNameAction(), null));
+        sortClientsMenu.addMenuItem(createMenuItem("По дате выезда", actionFactory.showClientsSortedByCheckoutDateAction(), null));
+        return sortClientsMenu;
     }
 
     private Menu buildAmenitiesMenu() {
         Menu amenitiesMenu = new Menu("Управление услугами");
-
-        // Основные операции
-        amenitiesMenu.addMenuItem(new MenuItem("Добавить услугу", actionFactory.addAmenityAction(), null));
-        amenitiesMenu.addMenuItem(new MenuItem("Изменить цену услуги", actionFactory.updateAmenityPriceAction(), null));
-
-        // Просмотр услуг
-        Menu viewAmenitiesMenu = new Menu("Просмотр услуг");
-        viewAmenitiesMenu.addMenuItem(new MenuItem("Все услуги", actionFactory.getAllAmenityAction(), null));
-
-        // Сортировка услуг
-        Menu sortAmenitiesMenu = new Menu("Сортировка услуг");
-        sortAmenitiesMenu.addMenuItem(new MenuItem("По цене", actionFactory.getAllAmenitiesSortedByPriceAction(), null));
-        sortAmenitiesMenu.addMenuItem(new MenuItem("По названию", actionFactory.getAllAmenitiesSortedByNameAction(), null));
-
-        viewAmenitiesMenu.addMenuItem(new MenuItem("Сортировка", null, sortAmenitiesMenu));
-        amenitiesMenu.addMenuItem(new MenuItem("Просмотр услуг", null, viewAmenitiesMenu));
-
-        // Услуги клиента
-        Menu clientAmenitiesMenu = new Menu("Услуги клиента");
-        clientAmenitiesMenu.addMenuItem(new MenuItem("Все услуги клиента", actionFactory.getAmenitiesClientSortedByNoneAction(), null));
-        clientAmenitiesMenu.addMenuItem(new MenuItem("Сортировка по дате", actionFactory.getAmenitiesClientSortedByDateAction(), null));
-        clientAmenitiesMenu.addMenuItem(new MenuItem("Сортировка по цене", actionFactory.getAmenitiesClientSortedByPriceAction(), null));
-
-        amenitiesMenu.addMenuItem(new MenuItem("Услуги клиентов", null, clientAmenitiesMenu));
-
+        addAmenityManagementItems(amenitiesMenu);
+        addAmenityViewingSubmenu(amenitiesMenu);
+        addClientAmenitiesSubmenu(amenitiesMenu);
         return amenitiesMenu;
+    }
+
+    private void addAmenityManagementItems(Menu amenitiesMenu) {
+        amenitiesMenu.addMenuItem(createMenuItem("Добавить услугу", actionFactory.addAmenityAction(), null));
+        amenitiesMenu.addMenuItem(createMenuItem("Изменить цену услуги", actionFactory.updateAmenityPriceAction(), null));
+    }
+
+    private void addAmenityViewingSubmenu(Menu amenitiesMenu) {
+        Menu viewAmenitiesMenu = createViewAmenitiesMenu();
+        Menu sortAmenitiesMenu = createSortAmenitiesMenu();
+
+        viewAmenitiesMenu.addMenuItem(createMenuItem("Сортировка", null, sortAmenitiesMenu));
+        amenitiesMenu.addMenuItem(createMenuItem("Просмотр услуг", null, viewAmenitiesMenu));
+    }
+
+    private Menu createViewAmenitiesMenu() {
+        Menu viewAmenitiesMenu = new Menu("Просмотр услуг");
+        viewAmenitiesMenu.addMenuItem(createMenuItem("Все услуги", actionFactory.showAllAmenitiesAction(), null));
+        return viewAmenitiesMenu;
+    }
+
+    private Menu createSortAmenitiesMenu() {
+        Menu sortAmenitiesMenu = new Menu("Сортировка услуг");
+        sortAmenitiesMenu.addMenuItem(createMenuItem("По цене", actionFactory.showAmenitiesSortedByPriceAction(), null));
+        sortAmenitiesMenu.addMenuItem(createMenuItem("По названию", actionFactory.showAmenitiesSortedByNameAction(), null));
+        return sortAmenitiesMenu;
+    }
+
+    private void addClientAmenitiesSubmenu(Menu amenitiesMenu) {
+        Menu clientAmenitiesMenu = createClientAmenitiesMenu();
+        amenitiesMenu.addMenuItem(createMenuItem("Услуги клиентов", null, clientAmenitiesMenu));
+    }
+
+    private Menu createClientAmenitiesMenu() {
+        Menu clientAmenitiesMenu = new Menu("Услуги клиента");
+        clientAmenitiesMenu.addMenuItem(createMenuItem("Все услуги клиента", actionFactory.showClientAmenitiesAction(), null));
+        clientAmenitiesMenu.addMenuItem(createMenuItem("Сортировка по дате", actionFactory.showClientAmenitiesSortedByDateAction(), null));
+        clientAmenitiesMenu.addMenuItem(createMenuItem("Сортировка по цене", actionFactory.showClientAmenitiesSortedByPriceAction(), null));
+        return clientAmenitiesMenu;
     }
 
     private Menu buildReportsMenu() {
         Menu reportsMenu = new Menu("Отчеты и аналитика");
-
-        // Основная статистика
-        reportsMenu.addMenuItem(new MenuItem("Количество свободных номеров", actionFactory.getTotalCountAvailableRooms(), null));
-        reportsMenu.addMenuItem(new MenuItem("Количество клиентов", actionFactory.getTotalServicedClientAction(), null));
-        reportsMenu.addMenuItem(new MenuItem("Общий доход", actionFactory.showTotalRevenueAction(), null));
-
-        // История бронирований
-        Menu bookingHistoryMenu = new Menu("История бронирований");
-        bookingHistoryMenu.addMenuItem(new MenuItem("Последние 3 постояльца", actionFactory.getLastThreeRoomClientsAction(), null));
-        bookingHistoryMenu.addMenuItem(new MenuItem("Все завершенные бронирования", actionFactory.getAllCompletedBookingsAction(), null));
-
-        reportsMenu.addMenuItem(new MenuItem("История бронирований", null, bookingHistoryMenu));
-
+        addReportItems(reportsMenu);
+        addBookingHistorySubmenu(reportsMenu);
         return reportsMenu;
+    }
+
+    private void addReportItems(Menu reportsMenu) {
+        reportsMenu.addMenuItem(createMenuItem("Количество свободных номеров", actionFactory.showAvailableRoomsCountAction(), null));
+        reportsMenu.addMenuItem(createMenuItem("Количество клиентов", actionFactory.showClientCountAction(), null));
+        reportsMenu.addMenuItem(createMenuItem("Общий доход", actionFactory.showTotalRevenueAction(), null));
+    }
+
+    private void addBookingHistorySubmenu(Menu reportsMenu) {
+        Menu bookingHistoryMenu = createBookingHistoryMenu();
+        reportsMenu.addMenuItem(createMenuItem("История бронирований", null, bookingHistoryMenu));
+    }
+
+    private Menu createBookingHistoryMenu() {
+        Menu bookingHistoryMenu = new Menu("История бронирований");
+        bookingHistoryMenu.addMenuItem(createMenuItem("Последние 3 постояльца", actionFactory.showLastThreeRoomBookingsAction(), null));
+        bookingHistoryMenu.addMenuItem(createMenuItem("Все завершенные бронирования", actionFactory.showAllCompletedBookingsAction(), null));
+        return bookingHistoryMenu;
     }
 
     private Menu buildOperationsMenu() {
         Menu operationsMenu = new Menu("Дополнительные операции");
-
-        operationsMenu.addMenuItem(new MenuItem("Рассчитать стоимость проживания", actionFactory.calculateRoomPaymentAction(), null));
-        operationsMenu.addMenuItem(new MenuItem("Найти свободные номера к дате", actionFactory.getAvailableRoomsByDateAction(), null));
-        operationsMenu.addMenuItem(new MenuItem("Проверить доступность номера", actionFactory.checkRoomAvailabilityAction(), null));
-        operationsMenu.addMenuItem(new MenuItem("Добавить услугу клиенту", actionFactory.addAmenityToClientAction(), null));
-
+        addOperationItems(operationsMenu);
         return operationsMenu;
+    }
+
+    private void addOperationItems(Menu operationsMenu) {
+        operationsMenu.addMenuItem(createMenuItem("Рассчитать стоимость проживания", actionFactory.calculateRoomPaymentAction(), null));
+        operationsMenu.addMenuItem(createMenuItem("Найти свободные номера к дате", actionFactory.showAvailableRoomsByDateAction(), null));
+        operationsMenu.addMenuItem(createMenuItem("Проверить доступность номера", actionFactory.checkRoomAvailabilityAction(), null));
+        operationsMenu.addMenuItem(createMenuItem("Добавить услугу клиенту", actionFactory.addAmenityToClientAction(), null));
     }
 
     public Menu getRootMenu() {

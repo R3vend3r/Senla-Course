@@ -1,14 +1,15 @@
 package UI.action.room;
 
-import UI.action.Action;
 import Controller.ManagerHotel;
+import UI.action.Action;
+
 import java.util.Scanner;
 
-public class getLastThreeRoomClientsAction implements Action {
+public class showLastThreeRoomBookingsAction implements Action {
     private final ManagerHotel manager;
     private final Scanner scanner = new Scanner(System.in);
 
-    public getLastThreeRoomClientsAction(ManagerHotel manager) {
+    public showLastThreeRoomBookingsAction(ManagerHotel manager) {
         this.manager = manager;
     }
 

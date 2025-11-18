@@ -1,8 +1,8 @@
 package UI;
 
+import Controller.ManagerHotel;
 import UI.action_factory.ActionFactory;
 import UI.action_factory.ActionFactoryController;
-import Controller.ManagerHotel;
 
 import java.util.Scanner;
 
@@ -14,7 +14,11 @@ public class MenuController {
     private Navigator navigator;
 
     private MenuController() {
-        this.dataManager = new ManagerHotel("Grand Hotel");
+        this.dataManager = new ManagerHotel();
+        initializeUIComponents();
+    }
+
+    private void initializeUIComponents() {
         ActionFactory actionFactory = new ActionFactoryController(dataManager);
         this.builder = new Builder(actionFactory);
         this.navigator = new Navigator(builder.getRootMenu());
@@ -27,33 +31,62 @@ public class MenuController {
         return instance;
     }
 
-    public void run(){
+    public void run() {
         scanner = new Scanner(System.in);
-        boolean isRun = true;
+        runMainLoop();
+        closeScanner();
+    }
 
-        while (isRun){
+    private void runMainLoop() {
+        boolean isRunning = true;
+
+        while (isRunning) {
             navigator.printMenu();
-            int number;
-            try {
-                number = scanner.nextInt();
-                scanner.nextLine();
-            }
-            catch (Exception exception){
-                System.out.println("Ошибка ввода! ");
-                scanner.nextLine();
-                continue;
-            }
-            if (number == 0){
-                if (navigator.isEmpty()){
-                    isRun = false;
-                }
-                else{
-                    navigator.backMenu();
-                }
-            }
-            else{
-                navigator.navigate(number);
-            }
+            int userChoice = getUserInput();
+            isRunning = processUserChoice(userChoice);
+        }
+    }
+
+    private int getUserInput() {
+        try {
+            return scanner.nextInt();
+        } catch (Exception exception) {
+            handleInputError();
+            return -1;
+        } finally {
+            scanner.nextLine();
+        }
+    }
+
+    private void handleInputError() {
+        System.out.println("Ошибка ввода! ");
+    }
+
+    private boolean processUserChoice(int userChoice) {
+        if (userChoice == 0) {
+            return handleBackNavigation();
+        } else {
+            handleMenuNavigation(userChoice);
+            return true;
+        }
+    }
+
+    private boolean handleBackNavigation() {
+        if (navigator.isEmpty()) {
+            return false;
+        } else {
+            navigator.backMenu();
+            return true;
+        }
+    }
+
+    private void handleMenuNavigation(int userChoice) {
+        navigator.navigate(userChoice);
+    }
+
+    private void closeScanner() {
+        if (scanner != null) {
+            scanner.close();
         }
     }
 }

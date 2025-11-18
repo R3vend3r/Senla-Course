@@ -1,7 +1,9 @@
 package UI.action.order;
 
-import UI.action.Action;
 import Controller.ManagerHotel;
+import UI.action.Action;
+import model.Client;
+
 import java.util.Scanner;
 
 public class evictClientAction implements Action {
@@ -15,24 +17,62 @@ public class evictClientAction implements Action {
     @Override
     public void execute() {
         try {
-            System.out.println("\n=== Выселение клиента ===");
-            System.out.print("Номер комнаты: ");
-            int roomNumber = scanner.nextInt();
-            scanner.nextLine();
-
-            manager.findClientByRoom(roomNumber).ifPresentOrElse(
-                    client -> {
-                        System.out.println("Клиент: " + client);
-                        System.out.print("Выселить (да/нет)? ");
-                        if(scanner.nextLine().equalsIgnoreCase("да")) {
-                            manager.evictClient(roomNumber);
-                            System.out.println("Клиент выселен");
-                        }
-                    },
-                    () -> System.out.println("Номер свободен или не существует")
-            );
+            performEvictionProcess();
         } catch (Exception e) {
-            System.out.println("Ошибка: " + e.getMessage());
+            handleExecutionError(e);
         }
+    }
+
+    private void performEvictionProcess() {
+        printEvictionHeader();
+        int roomNumber = readRoomNumber();
+        processClientEviction(roomNumber);
+    }
+
+    private void printEvictionHeader() {
+        System.out.println("\n=== Выселение клиента ===");
+    }
+
+    private int readRoomNumber() {
+        System.out.print("Номер комнаты: ");
+        int roomNumber = scanner.nextInt();
+        scanner.nextLine();
+        return roomNumber;
+    }
+
+    private void processClientEviction(int roomNumber) {
+        manager.findClientByRoom(roomNumber).ifPresentOrElse(
+                this::confirmAndEvictClient,
+                this::handleRoomEmptyOrNotFound
+        );
+    }
+
+    private void confirmAndEvictClient(Client client) {
+        printClientInfo(client);
+        if (confirmEviction()) {
+            executeClientEviction(client);
+        }
+    }
+
+    private void printClientInfo(Client client) {
+        System.out.println("Клиент: " + client);
+    }
+
+    private boolean confirmEviction() {
+        System.out.print("Выселить (да/нет)? ");
+        return scanner.nextLine().equalsIgnoreCase("да");
+    }
+
+    private void executeClientEviction(Client client) {
+        manager.evictClient(client.getRoomNumber());
+        System.out.println("Клиент выселен");
+    }
+
+    private void handleRoomEmptyOrNotFound() {
+        System.out.println("Номер свободен или не существует");
+    }
+
+    private void handleExecutionError(Exception e) {
+        System.out.println("Ошибка: " + e.getMessage());
     }
 }

@@ -1,12 +1,12 @@
 package UI.action.room;
 
-import UI.action.Action;
 import Controller.ManagerHotel;
+import UI.action.Action;
 
-public class getTotalCountAvailableRooms implements Action {
+public class showAvailableRoomsCountAction implements Action {
     private final ManagerHotel manager;
 
-    public getTotalCountAvailableRooms(ManagerHotel manager) {
+    public showAvailableRoomsCountAction(ManagerHotel manager) {
         this.manager = manager;
     }
 

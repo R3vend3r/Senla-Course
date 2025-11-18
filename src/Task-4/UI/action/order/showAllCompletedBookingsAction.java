@@ -1,12 +1,12 @@
 package UI.action.order;
 
-import UI.action.Action;
 import Controller.ManagerHotel;
+import UI.action.Action;
 
-public class getAllCompletedBookingsAction implements Action {
+public class showAllCompletedBookingsAction implements Action {
     private final ManagerHotel manager;
 
-    public getAllCompletedBookingsAction(ManagerHotel manager) {
+    public showAllCompletedBookingsAction(ManagerHotel manager) {
         this.manager = manager;
     }
 

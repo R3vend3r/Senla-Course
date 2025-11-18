@@ -1,10 +1,10 @@
 package model;
 
 
-import interfaceClass.*;
+import interfaceClass.IAmenityRepository;
+
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 
 public class AmenityRepository implements IAmenityRepository {
     private final List<Amenity> amenities;
@@ -14,14 +14,20 @@ public class AmenityRepository implements IAmenityRepository {
     }
 
     @Override
-    public void addAmenity(Amenity amenity) {
-        Objects.requireNonNull(amenity, "Amenity cannot be null");
-
-        if (containsAmenity(amenity.getName())) {
-            throw new IllegalArgumentException("Amenity '" + amenity.getName() + "' already exists");
-        }
-
+    public void addAmenity(Amenity amenity) throws IllegalArgumentException {
+        validateAmenity(amenity);
+        checkAmenityDoesNotExist(amenity.getName());
         amenities.add(amenity);
+    }
+
+    private void validateAmenity(Amenity amenity) {
+        Objects.requireNonNull(amenity, "Amenity cannot be null");
+    }
+
+    private void checkAmenityDoesNotExist(String amenityName) {
+        if (containsAmenity(amenityName)) {
+            throw new IllegalArgumentException("Amenity '" + amenityName + "' already exists");
+        }
     }
 
     @Override
@@ -32,14 +38,12 @@ public class AmenityRepository implements IAmenityRepository {
     }
 
     @Override
-    public void updateAmenityPrice(String amenityName, double newPrice) {
+    public void updateAmenityPrice(String amenityName, double newPrice) throws IllegalArgumentException {
         Objects.requireNonNull(amenityName, "Amenity name cannot be null");
 
-        findAmenityByName(amenityName)
-                .ifPresentOrElse(
-                        amenity -> amenity.setPrice(newPrice),
-                        () -> { throw new IllegalArgumentException("Amenity not found"); }
-                );
+        Amenity amenity = findAmenityByName(amenityName)
+                .orElseThrow(() -> new IllegalArgumentException("Amenity not found"));
+        amenity.setPrice(newPrice);
     }
 
     @Override

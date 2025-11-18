@@ -1,12 +1,12 @@
 package UI.action.client;
 
-import UI.action.Action;
 import Controller.ManagerHotel;
+import UI.action.Action;
 
-public class getAllClientsSortedByNoneAction implements Action {
+public class showAllClientsAction implements Action {
     private final ManagerHotel manager;
 
-    public getAllClientsSortedByNoneAction(ManagerHotel manager) {
+    public showAllClientsAction(ManagerHotel manager) {
         this.manager = manager;
     }
 

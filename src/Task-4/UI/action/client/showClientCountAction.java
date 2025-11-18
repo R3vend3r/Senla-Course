@@ -1,12 +1,12 @@
 package UI.action.client;
 
-import UI.action.Action;
 import Controller.ManagerHotel;
+import UI.action.Action;
 
-public class getTotalServicedClientAction implements Action {
+public class showClientCountAction implements Action {
     private final ManagerHotel manager;
 
-    public getTotalServicedClientAction(ManagerHotel manager) {
+    public showClientCountAction(ManagerHotel manager) {
         this.manager = manager;
     }
 

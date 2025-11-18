@@ -1,132 +1,196 @@
-package model;
+package Controller;
 
 import enums.RoomCondition;
 import enums.SortType;
-import service.*;
+import interfaceClass.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import model.*;
+import service.*;
+
 public class ManagerHotel {
-    private final String nameHotel;
     private final RoomService roomService;
     private final AmenityService amenityService;
     private final ClientService clientService;
     private final OrderService orderService;
 
-    public ManagerHotel(String nameHotel) {
-        this.nameHotel = nameHotel;
-        this.roomService = new RoomService();
-        this.amenityService = new AmenityService();
-        this.clientService = new ClientService();
-        this.orderService = new OrderService();
+    public ManagerHotel() {
+        IRoomRepository roomRepository = new RoomRepository();
+        IAmenityRepository amenityRepository = new AmenityRepository();
+        IClientRepository clientRepository = new ClientRepository();
+        IOrderRepository orderRepository = new OrderRepository();
+
+        this.roomService = new RoomService(roomRepository);
+        this.amenityService = new AmenityService(amenityRepository);
+        this.clientService = new ClientService(clientRepository);
+        this.orderService = new OrderService(orderRepository);
     }
 
-    // === Основные операции ===
-    public void settleClient(Client client, Room room, Date checkOutDate, double price) {
-        if (!roomService.isRoomAvailable(room.getNumberRoom())) {
-            System.out.println("Номер " + room.getNumberRoom() + " недоступен для заселения");
-            return;
-        }
+    public void settleClient(Client client, Room room, Date checkOutDate) {
+        validateSettlementParameters(client, room, checkOutDate);
+        validateRoomAvailability(room);
+        executeClientSettlement(client, room, checkOutDate);
+    }
 
-        if (!clientService.checkClient(client)) {
-            clientService.registerClient(client);
-        }
+    private void validateSettlementParameters(Client client, Room room, Date checkOutDate) {
+        Objects.requireNonNull(client, "Client cannot be null");
+        Objects.requireNonNull(room, "Room cannot be null");
+        Objects.requireNonNull(checkOutDate, "Check-out date cannot be null");
+    }
 
-        orderService.createRoomOrder(client, room, new Date(), checkOutDate);
+    private void validateRoomAvailability(Room room) {
+        if (!roomService.findRoom(room.getNumberRoom())
+                .map(Room::isAvailable)
+                .orElse(false)) {
+            throw new IllegalStateException("Room " + room.getNumberRoom() + " is not available");
+        }
+    }
+
+    private void executeClientSettlement(Client client, Room room, Date checkOutDate) {
+        orderService.createRoomBooking(client, room, new Date(), checkOutDate);
+        roomService.assignClientToRoom(room.getNumberRoom(), client.getClientId(), checkOutDate);
         roomService.markRoomOccupied(room);
-        System.out.println("Клиент " + client.getName() + " заселен в номер " + room.getNumberRoom());
+        clientService.assignRoomToClient(client.getClientId(), room.getNumberRoom());
     }
 
     public void evictClient(int roomNumber) {
-        try {
-            orderService.completeRoomOrder(roomNumber, new Date());
-            roomService.clearRoom(roomNumber);
-            System.out.println("Номер " + roomNumber + " освобожден");
-        } catch (Exception e) {
-            System.out.println("Ошибка при выселении: " + e.getMessage());
-        }
+        completeRoomBooking(roomNumber);
+        clearRoomAssignment(roomNumber);
+    }
+
+    private void completeRoomBooking(int roomNumber) {
+        orderService.completeRoomBooking(roomNumber, new Date());
+    }
+
+    private void clearRoomAssignment(int roomNumber) {
+        roomService.clearRoom(roomNumber);
+        clientService.removeClientByRoomNumber(roomNumber);
+    }
+
+    public Optional<Client> findClientByRoom(int roomNumber) {
+        return clientService.findClientByRoomNumber(roomNumber);
+    }
+
+    public Optional<Room> findRoom(int roomNumber) {
+        return roomService.findRoom(roomNumber);
+    }
+
+    public Optional<Client> findClientById(String clientId) {
+        return clientService.findClientById(clientId);
+    }
+
+    public Optional<Amenity> findAmenityByName(String name) {
+        return amenityService.findAmenityByName(name);
+    }
+
+    public double calculateTotalIncome() {
+        return orderService.calculateTotalIncome();
+    }
+
+    public void registerClient(Client client) {
+        clientService.registerClient(client);
     }
 
     public void addRoom(Room room) {
         roomService.addRoom(room);
     }
 
-    public void changeRoomStatus(Room room, RoomCondition status) {
-        roomService.changeRoomCondition(room, status);
-    }
-
-    public void updateRoomPrice(Room room, double newPrice) {
-        roomService.changeRoomPrice(room, newPrice);
-    }
-
     public void addAmenity(Amenity amenity) {
         amenityService.addAmenity(amenity);
     }
 
-    public void addClientAmenity(Client client, Amenity amenity, Date dateIm){
-        orderService.createServiceOrder(client, amenity, dateIm);
+    public void updateRoomStatus(int number, RoomCondition status) {
+        roomService.updateRoomStatus(number, status);
     }
 
-    public void updateAmenityPrice(Amenity amenity, double newPrice) {
-        amenityService.changeAmenityPrice(amenity, newPrice);
+    public void updateRoomPrice(int number, double newPrice) {
+        roomService.updateRoomPrice(number, newPrice);
+    }
+
+    public void updateAmenityPrice(String amenityName, double newPrice) {
+        amenityService.updateAmenityPrice(amenityName, newPrice);
     }
 
     public Map<Integer, Room> getRooms(SortType sortType, boolean onlyAvailable) {
-        return onlyAvailable ?
-                roomService.getSortedAvailableRooms(sortType) :
-                roomService.getSortedRooms(sortType);
+        return onlyAvailable
+                ? roomService.getSortedAvailableRooms(sortType)
+                : roomService.getSortedRooms(sortType);
     }
 
-    public List<Order> getAllClientsSorted(SortType sortType) {
-        return orderService.getSortedOrders(sortType);
+    public List<RoomBooking> getAllActiveBookings(SortType sortType) {
+        return orderService.getActiveBookingsSorted(sortType);
     }
 
-    public List<Order> getClientAmenities(Client client, SortType sortType) {
-        return orderService.getSortedAmenities(sortType).stream()
-                .filter(o -> o.getClient().equals(client))
+    public List<RoomBooking> getAllCompletedBookings() {
+        return orderService.getCompletedBookings();
+    }
+
+    public List<AmenityOrder> getClientAmenitiesSorted(Client client, SortType sortType) {
+        return filterAmenityOrdersByClient(client, orderService.getAmenityOrdersSorted(sortType));
+    }
+
+    private List<AmenityOrder> filterAmenityOrdersByClient(Client client, List<AmenityOrder> orders) {
+        return orders.stream()
+                .filter(order -> order.getClient().equals(client))
                 .collect(Collectors.toList());
     }
 
     public List<Amenity> getAmenities(SortType sortType) {
+        return getSortedAmenities(sortType);
+    }
+
+    private List<Amenity> getSortedAmenities(SortType sortType) {
         return switch (sortType) {
-            case PRICE -> amenityService.getAmenitiesSortedByPrice().stream().toList();
-            case ALPHABET -> amenityService.getAmenitiesSortedByName().stream().toList();
-            case NONE -> amenityService.getAllAmenity().stream().toList();
-            default -> throw new IllegalArgumentException("Неподдерживаемый тип сортировки для услуг");
+            case PRICE -> amenityService.getAmenitiesSortedByPrice();
+            case ALPHABET -> amenityService.getAmenitiesSortedByName();
+            case NONE -> amenityService.getAllAmenities();
+            default -> throw new IllegalArgumentException("Unsupported sort type for amenities");
         };
     }
 
-    public List<Order> getLastThreeRoomClients(int roomNumber) {
-        return orderService.getLastThreeRoomClients(roomNumber);
+    public void addAmenityToClient(int roomNumber, Amenity amenity, Date serviceDate) {
+        validateRoomNumber(roomNumber);
+        orderService.addAmenityToBooking(roomNumber, amenity, serviceDate);
     }
 
-    public List<Room> getAvailableRoomsByDate(Date date) {
+    private void validateRoomNumber(int roomNumber) {
+        if (roomNumber <= 0) {
+            throw new IllegalStateException("Client is not assigned to any room");
+        }
+    }
+
+    public List<RoomBooking> getLastThreeBookingsForRoom(int roomNumber) {
+        return orderService.getLastThreeBookingsForRoom(roomNumber);
+    }
+
+    public Map<Integer, Room> getAvailableRoomsByDate(Date date) {
         return roomService.getAvailableRoomsByDate(date);
     }
 
-    public double calculateRoomPayment(Client client, Room room, Date endDate) {
-        return roomService.calculateRoomPayment(client, room, endDate);
+    public double calculateRoomPayment(int roomNumber, Date endDate) {
+        double roomCost = roomService.calculateStayCost(roomNumber, endDate);
+        double amenityCost = orderService.calculateAmenityCost(roomNumber);
+        return roomCost + amenityCost;
     }
 
     public int getAvailableRoomsCount() {
-        return roomService.getNumberAvailableRooms();
+        return roomService.countAvailableRooms();
     }
 
-    public int getTotalClientsCount() {
+    public boolean isRoomAvailable(int roomNumber) {
+        return roomService.isRoomAvailable(roomNumber);
+    }
+
+    public List<Client> getAllClients() {
+        return clientService.getAllClients();
+    }
+
+    public int getClientCount() {
         return clientService.getClientCount();
-    }
-
-    public int getActiveClientsCount() {
-        return orderService.countActiveClients();
     }
 
     public String getRoomDetails(int roomNumber) {
         return roomService.getRoomDetails(roomNumber);
-    }
-
-
-
-    public String getNameHotel() {
-        return nameHotel;
     }
 }

@@ -1,15 +1,16 @@
 package UI.action.amenity;
 
+import Controller.ManagerHotel;
 import UI.action.Action;
 import enums.SortType;
-import Controller.ManagerHotel;
+
 import java.util.Scanner;
 
-public class getAmenitiesClientSortedByDateAction implements Action {
+public class showClientAmenitiesSortedByDateAction implements Action {
     private final ManagerHotel manager;
     private final Scanner scanner = new Scanner(System.in);
 
-    public getAmenitiesClientSortedByDateAction(ManagerHotel manager) {
+    public showClientAmenitiesSortedByDateAction(ManagerHotel manager) {
         this.manager = manager;
     }
 

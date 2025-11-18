@@ -1,7 +1,7 @@
 package UI.action.order;
 
-import UI.action.Action;
 import Controller.ManagerHotel;
+import UI.action.Action;
 
 public class showTotalRevenueAction implements Action {
     private final ManagerHotel manager;
@@ -13,6 +13,6 @@ public class showTotalRevenueAction implements Action {
     @Override
     public void execute() {
         System.out.printf("\nОбщий доход: %.2f руб.%n",
-                manager.calculateTotalRevenue());
+                manager.calculateTotalIncome());
     }
 }

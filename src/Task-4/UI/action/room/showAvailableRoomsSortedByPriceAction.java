@@ -1,13 +1,13 @@
 package UI.action.room;
 
+import Controller.ManagerHotel;
 import UI.action.Action;
 import enums.SortType;
-import Controller.ManagerHotel;
 
-public class getAllAvailableRoomsSortedByPriceAction implements Action {
+public class showAvailableRoomsSortedByPriceAction implements Action {
     private final ManagerHotel manager;
 
-    public getAllAvailableRoomsSortedByPriceAction(ManagerHotel manager) {
+    public showAvailableRoomsSortedByPriceAction(ManagerHotel manager) {
         this.manager = manager;
     }
 

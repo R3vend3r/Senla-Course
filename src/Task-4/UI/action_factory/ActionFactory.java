@@ -3,52 +3,64 @@ package UI.action_factory;
 import UI.action.Action;
 
 public interface ActionFactory {
+    // Клиенты
     public Action settleClientAction();
     public Action evictClientAction();
-
     public Action findClientByIdAction();
 
+    // Комнаты - управление
     public Action addRoomAction();
     public Action changeRoomStatusAction();
     public Action updateRoomPriceAction();
 
-    public Action getAllRoomsAction();
-    public Action getAllAvailableRoomsAction();//size для кол-ва
+    // Комнаты - просмотр
+    public Action showAllRoomsAction();
+    public Action showAllAvailableRoomsAction();
 
-    public Action getAllRoomsSortedByPriceAction();
-    public Action getAllRoomsSortedByCapacityAction();
-    public Action getAllRoomsSortedByStarsAction();
-    public Action getAllRoomsSortedByTypeAction();
+    // Комнаты - сортировка всех
+    public Action showRoomsSortedByPriceAction();
+    public Action showRoomsSortedByCapacityAction();
+    public Action showRoomsSortedByStarsAction();
+    public Action showRoomsSortedByTypeAction();
 
+    // Комнаты - сортировка доступных
+    public Action showAvailableRoomsSortedByPriceAction();
+    public Action showAvailableRoomsSortedByCapacityAction();
+    public Action showAvailableRoomsSortedByStarsAction();
+    public Action showAvailableRoomsSortedByTypeAction();
+
+    // Комнаты - дополнительные операции
     public Action checkRoomAvailabilityAction();
-    public Action getAllAvailableRoomsSortedByPriceAction();
-    public Action getAllAvailableRoomsSortedByCapacityAction();
-    public Action getAllAvailableRoomsSortedByStarsAction();
-    public Action getAllAvailableRoomsSortedByTypeAction();
+    public Action showRoomDetailsAction();
+    public Action showAvailableRoomsByDateAction();
 
-    public Action getAllCompletedBookingsAction();
-    public Action getRoomDetailsAction();
-    public Action getAvailableRoomsByDateAction();
+    // Клиенты - просмотр и сортировка
+    public Action showClientsSortedByNameAction();
+    public Action showClientsSortedByCheckoutDateAction();
+    public Action showAllClientsAction();
 
-    public Action getAllClientsSortedByAlphabetAction();
-    public Action getAllClientsSortedByDateEndAction();
-    public Action getAllClientsSortedByNoneAction(); //size для кол-ва
-
+    // Услуги - управление
     public Action addAmenityAction();
     public Action updateAmenityPriceAction();
     public Action addAmenityToClientAction();
-    public Action getAllAmenityAction();
+    public Action showAllAmenitiesAction();
 
-    public Action getAmenitiesClientSortedByDateAction();
-    public Action getAmenitiesClientSortedByPriceAction();
-    public Action getAmenitiesClientSortedByNoneAction();
+    // Услуги клиентов
+    public Action showClientAmenitiesSortedByDateAction();
+    public Action showClientAmenitiesSortedByPriceAction();
+    public Action showClientAmenitiesAction();
 
-    public Action getAllAmenitiesSortedByPriceAction();
-    public Action getAllAmenitiesSortedByNameAction();
+    // Услуги - сортировка
+    public Action showAmenitiesSortedByPriceAction();
+    public Action showAmenitiesSortedByNameAction();
 
-    public Action getLastThreeRoomClientsAction();
+    // Отчеты и аналитика
+    public Action showLastThreeRoomBookingsAction();
     public Action calculateRoomPaymentAction();
-    public Action getTotalServicedClientAction();
+    public Action showClientCountAction();
     public Action showTotalRevenueAction();
-    public Action getTotalCountAvailableRooms();
+    public Action showAvailableRoomsCountAction();
+
+    // Бронирования
+    public Action showAllCompletedBookingsAction();
 }

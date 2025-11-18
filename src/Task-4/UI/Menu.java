@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Menu {
-    private String name;
-    private List<MenuItem> menuItems;
+    private final String name;
+    private final List<MenuItem> menuItems;
 
     public Menu(String name) {
         this.name = name;

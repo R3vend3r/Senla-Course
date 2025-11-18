@@ -2,7 +2,8 @@ package model;
 
 import enums.RoomCondition;
 import enums.SortType;
-import interfaceClass.*;
+import interfaceClass.IRoomRepository;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -11,11 +12,19 @@ public class RoomRepository implements IRoomRepository {
 
     @Override
     public void addRoom(Room room) {
-        Objects.requireNonNull(room, "Room cannot be null");
-        if (rooms.containsKey(room.getNumberRoom())) {
-            throw new IllegalArgumentException("Room " + room.getNumberRoom() + " already exists");
-        }
+        validateRoom(room);
+        checkRoomDoesNotExist(room.getNumberRoom());
         rooms.put(room.getNumberRoom(), room);
+    }
+
+    private void validateRoom(Room room) {
+        Objects.requireNonNull(room, "Room cannot be null");
+    }
+
+    private void checkRoomDoesNotExist(int roomNumber) {
+        if (rooms.containsKey(roomNumber)) {
+            throw new IllegalArgumentException("Room " + roomNumber + " already exists");
+        }
     }
 
     @Override
@@ -31,29 +40,33 @@ public class RoomRepository implements IRoomRepository {
 
     @Override
     public void clearRoom(int roomNumber) {
+        Room room = getRoomOrThrow(roomNumber);
+        room.clearRoom();
+    }
+
+    private Room getRoomOrThrow(int roomNumber) {
         Room room = rooms.get(roomNumber);
         if (room == null) {
             throw new IllegalArgumentException("Room " + roomNumber + " not found");
         }
-        room.clearRoom();
+        return room;
     }
 
     @Override
     public void changeRoomCondition(int number, RoomCondition newStatus) {
         Objects.requireNonNull(newStatus, "Status cannot be null");
 
-        Room target = rooms.get(number);
-        if (target != null) {
-            target.setRoomCondition(newStatus);
+        Room room = rooms.get(number);
+        if (room != null) {
+            room.setRoomCondition(newStatus);
         }
     }
 
     @Override
     public void changeRoomPrice(int number, double newPrice) {
-
-        Room target = rooms.get(number);
-        if (target != null) {
-            target.setPriceForDay(newPrice);
+        Room room = rooms.get(number);
+        if (room != null) {
+            room.setPriceForDay(newPrice);
         }
     }
 
@@ -62,18 +75,14 @@ public class RoomRepository implements IRoomRepository {
         Objects.requireNonNull(clientId, "Client ID cannot be null");
         Objects.requireNonNull(availableDate, "Available date cannot be null");
 
-        Room room = rooms.get(roomNumber);
-        if (room != null) {
-            room.setClientIdAndDateAvailable(clientId, availableDate);
-            return;
-        }
-        System.out.println("Ошибка в комнате");
+        Room room = getRoomOrThrow(roomNumber);
+        room.setClientIdAndDateAvailable(clientId, availableDate);
     }
 
     @Override
     public String getAssignedClientId(int roomNumber) {
-        Room room = rooms.get(roomNumber);
-        return room != null ? room.getClientId() : null;
+        Room room = getRoomOrThrow(roomNumber);
+        return room.getClientId();
     }
 
     @Override
@@ -105,17 +114,18 @@ public class RoomRepository implements IRoomRepository {
         Objects.requireNonNull(date, "Date cannot be null");
 
         return rooms.values().stream()
-                .filter(room -> {
-                    Date availableDate = room.getAvailableDate();
-                    return room.isAvailable() ||
-                            (availableDate != null && !availableDate.after(date));
-                })
+                .filter(room -> isRoomAvailableByDate(room, date))
                 .collect(Collectors.toMap(
                         Room::getNumberRoom,
                         room -> room,
                         (a, b) -> a,
                         LinkedHashMap::new
                 ));
+    }
+
+    private boolean isRoomAvailableByDate(Room room, Date date) {
+        Date availableDate = room.getAvailableDate();
+        return room.isAvailable() || (availableDate != null && !availableDate.after(date));
     }
 
     @Override
@@ -131,7 +141,7 @@ public class RoomRepository implements IRoomRepository {
     private Map<Integer, Room> filterAndSortRooms(SortType sortType, boolean onlyAvailable) {
         Objects.requireNonNull(sortType, "Sort type cannot be null");
 
-        Comparator<Room> comparator = getComparator(sortType);
+        Comparator<Room> comparator = getRoomComparator(sortType);
 
         return rooms.values().stream()
                 .filter(room -> !onlyAvailable || room.isAvailable())
@@ -144,7 +154,7 @@ public class RoomRepository implements IRoomRepository {
                 ));
     }
 
-    private Comparator<Room> getComparator(SortType sortType) {
+    private Comparator<Room> getRoomComparator(SortType sortType) {
         return switch (sortType) {
             case CAPACITY -> Comparator.comparingInt(Room::getCapacity);
             case PRICE -> Comparator.comparingDouble(Room::getPriceForDay);
@@ -172,11 +182,17 @@ public class RoomRepository implements IRoomRepository {
     public double calculateStayCost(int roomNumber, Date endDate) {
         Objects.requireNonNull(endDate, "End date cannot be null");
 
-        Room room = rooms.get(roomNumber);
-        if (room == null) return 0.0;
+        Room room = getRoomOrThrow(roomNumber);
+        validateEndDate(endDate);
 
+        return room.getPriceForDay() * calculateDaysBetween(new Date(), endDate);
+    }
+
+    private void validateEndDate(Date endDate) {
         Date now = new Date();
-        return room.getPriceForDay() * calculateDaysBetween(now, endDate);
+        if (endDate.before(now)) {
+            throw new IllegalArgumentException("End date cannot be in the past");
+        }
     }
 
     private double calculateDaysBetween(Date start, Date end) {

@@ -1,7 +1,8 @@
 package UI.action.room;
 
-import UI.action.Action;
 import Controller.ManagerHotel;
+import UI.action.Action;
+
 import java.util.Scanner;
 
 public class checkRoomAvailabilityAction implements Action {

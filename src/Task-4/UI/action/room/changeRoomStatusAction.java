@@ -1,8 +1,9 @@
 package UI.action.room;
 
+import Controller.ManagerHotel;
 import UI.action.Action;
 import enums.RoomCondition;
-import Controller.ManagerHotel;
+
 import java.util.Scanner;
 
 public class changeRoomStatusAction implements Action {

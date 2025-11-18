@@ -1,8 +1,9 @@
 package UI.action.amenity;
 
-import UI.action.Action;
 import Controller.ManagerHotel;
+import UI.action.Action;
 import model.Amenity;
+
 import java.util.Scanner;
 
 public class addAmenityAction implements Action {

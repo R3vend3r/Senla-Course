@@ -1,7 +1,11 @@
 package model;
 
-import interfaceClass.*;
-import java.util.*;
+import interfaceClass.IClientRepository;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ClientRepository implements IClientRepository {
@@ -12,7 +16,7 @@ public class ClientRepository implements IClientRepository {
     }
 
     @Override
-    public void addClient(Client client) {
+    public void addClient(Client client) throws IllegalArgumentException {
         Objects.requireNonNull(client, "Client cannot be null");
 
         if (clientExists(client.getClientId())) {
@@ -53,7 +57,7 @@ public class ClientRepository implements IClientRepository {
     }
 
     @Override
-    public void assignRoomToClient(String clientId, int roomNumber) {
+    public void assignRoomToClient(String clientId, int roomNumber) throws IllegalArgumentException{
         Objects.requireNonNull(clientId, "Client ID cannot be null");
 
         findClientById(clientId).ifPresentOrElse(

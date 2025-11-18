@@ -1,12 +1,12 @@
 package comparator.AmenityComparator;
 
-import model.Order;
+import model.AmenityOrder;
 
 import java.util.Comparator;
 
-public class PriceAmenComparator implements Comparator<Order> {
+public class PriceAmenComparator implements Comparator<AmenityOrder> {
     @Override
-    public int compare(Order o1, Order o2) {
-        return Double.compare(o1.getService().getPrice(), o2.getService().getPrice());
+    public int compare(AmenityOrder o1, AmenityOrder o2) {
+        return Double.compare(o1.getAmenity().getPrice(), o2.getAmenity().getPrice());
     }
 }

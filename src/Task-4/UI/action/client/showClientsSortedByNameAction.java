@@ -1,13 +1,13 @@
 package UI.action.client;
 
+import Controller.ManagerHotel;
 import UI.action.Action;
 import enums.SortType;
-import Controller.ManagerHotel;
 
-public class getAllClientsSortedByAlphabetAction implements Action {
+public class showClientsSortedByNameAction implements Action {
     private final ManagerHotel manager;
 
-    public getAllClientsSortedByAlphabetAction(ManagerHotel manager) {
+    public showClientsSortedByNameAction(ManagerHotel manager) {
         this.manager = manager;
     }
 

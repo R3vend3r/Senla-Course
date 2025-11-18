@@ -1,9 +1,11 @@
 package model;
 
-import comparator.AmenityComparator.*;
-import comparator.OrderCorparator.*;
-import interfaceClass.*;
+import comparator.AmenityComparator.DateAmenComparator;
+import comparator.AmenityComparator.PriceAmenComparator;
+import comparator.OrderCorparator.AlphabetComparator;
+import comparator.OrderCorparator.DateComparator;
 import enums.SortType;
+import interfaceClass.IOrderRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,23 +22,36 @@ public class OrderRepository implements IOrderRepository {
     }
 
     @Override
-    public void createRoomBooking(Client client, Room room,
-                                          Date checkInDate, Date checkOutDate) {
+    public void createRoomBooking(Client client, Room room, Date checkInDate, Date checkOutDate) {
+        validateBookingParameters(client, room, checkInDate, checkOutDate);
+        validateCheckOutDate(checkInDate, checkOutDate);
+
+        RoomBooking booking = createNewBooking(client, room, checkInDate, checkOutDate);
+        addBookingToCollections(booking);
+    }
+
+    private void validateBookingParameters(Client client, Room room, Date checkInDate, Date checkOutDate) {
         Objects.requireNonNull(client, "Client cannot be null");
         Objects.requireNonNull(room, "Room cannot be null");
         Objects.requireNonNull(checkInDate, "CheckIn date cannot be null");
         Objects.requireNonNull(checkOutDate, "CheckOut date cannot be null");
+    }
 
+    private void validateCheckOutDate(Date checkInDate, Date checkOutDate) {
         if (checkOutDate.before(checkInDate)) {
             throw new IllegalArgumentException("CheckOut date must be after CheckIn date");
         }
-        double price = room.getPriceForDay();
-        double totalPrice = calculateStayCost(price, checkInDate, checkOutDate);
-        RoomBooking booking = new RoomBooking(client, room, totalPrice, checkOutDate);
+    }
+
+    private RoomBooking createNewBooking(Client client, Room room, Date checkInDate, Date checkOutDate) {
+        double totalPrice = calculateStayCost(room.getPriceForDay(), checkInDate, checkOutDate);
+        return new RoomBooking(client, room, totalPrice, checkOutDate);
+    }
+
+    private void addBookingToCollections(RoomBooking booking) {
         activeBookings.add(booking);
         completedBookings.add(booking);
     }
-
 
     @Override
     public double calculateStayCost(double priceForDay, Date checkInDate, Date endDate) {
@@ -51,26 +66,37 @@ public class OrderRepository implements IOrderRepository {
 
     @Override
     public AmenityOrder addAmenityOrder(Client client, Amenity amenity, Date serviceDate) {
-        Objects.requireNonNull(client, "Client cannot be null");
-        Objects.requireNonNull(amenity, "Amenity cannot be null");
-        Objects.requireNonNull(serviceDate, "Service date cannot be null");
+        validateAmenityOrderParameters(client, amenity, serviceDate);
 
-        AmenityOrder order = new AmenityOrder(client, amenity, serviceDate);
+        AmenityOrder order = createAmenityOrder(client, amenity, serviceDate);
         amenityOrders.add(order);
         return order;
     }
 
+    private void validateAmenityOrderParameters(Client client, Amenity amenity, Date serviceDate) {
+        Objects.requireNonNull(client, "Client cannot be null");
+        Objects.requireNonNull(amenity, "Amenity cannot be null");
+        Objects.requireNonNull(serviceDate, "Service date cannot be null");
+    }
+
+    private AmenityOrder createAmenityOrder(Client client, Amenity amenity, Date serviceDate) {
+        return new AmenityOrder(client, amenity, serviceDate);
+    }
+
     @Override
-    public void completeRoomBooking(int roomNumber, Date checkOutDate) {
+    public void completeRoomBooking(int roomNumber, Date checkOutDate) throws IllegalArgumentException {
         Objects.requireNonNull(checkOutDate, "CheckOut date cannot be null");
 
-        RoomBooking booking = activeBookings.stream()
-                .filter(b -> b.getRoom().getNumberRoom() == roomNumber)
-                .findFirst()
+        RoomBooking booking = findActiveBookingByRoom(roomNumber)
                 .orElseThrow(() -> new IllegalArgumentException("Room " + roomNumber + " is not occupied"));
 
+        completeBooking(booking, checkOutDate);
+    }
+
+    private void completeBooking(RoomBooking booking, Date checkOutDate) {
         booking.setCheckOutDate(checkOutDate);
         activeBookings.remove(booking);
+        // Note: Should we add to completedBookings here?
     }
 
     @Override
@@ -89,16 +115,22 @@ public class OrderRepository implements IOrderRepository {
     }
 
     @Override
-    public double calculatingTotalIncome() {
-        double bookingsIncome = completedBookings.stream()
+    public double calculateTotalIncome() {
+        double bookingsIncome = calculateBookingsIncome();
+        double amenitiesIncome = calculateAmenitiesIncome();
+        return bookingsIncome + amenitiesIncome;
+    }
+
+    private double calculateBookingsIncome() {
+        return completedBookings.stream()
                 .mapToDouble(RoomBooking::getTotalPrice)
                 .sum();
+    }
 
-        double amenitiesIncome = amenityOrders.stream()
+    private double calculateAmenitiesIncome() {
+        return amenityOrders.stream()
                 .mapToDouble(order -> order.getAmenity().getPrice())
                 .sum();
-
-        return bookingsIncome + amenitiesIncome;
     }
 
     @Override
@@ -111,32 +143,46 @@ public class OrderRepository implements IOrderRepository {
     }
 
     @Override
-    public List<RoomBooking> getSortedBookings(SortType sortType) {
+    public List<RoomBooking> getSortedBookings(SortType sortType) throws IllegalArgumentException {
         Objects.requireNonNull(sortType, "Sort type cannot be null");
 
-        Comparator<Order> comparator = switch (sortType) {
+        Comparator<Order> comparator = createBookingsComparator(sortType);
+        return sortBookings(comparator);
+    }
+
+    private Comparator<Order> createBookingsComparator(SortType sortType) {
+        return switch (sortType) {
             case ALPHABET -> new AlphabetComparator();
             case DATE_END -> new DateComparator();
             case NONE -> (a, b) -> 0;
             default -> throw new IllegalArgumentException("Unsupported sort type for bookings: " + sortType);
         };
+    }
 
+    private List<RoomBooking> sortBookings(Comparator<Order> comparator) {
         return activeBookings.stream()
                 .sorted(comparator.reversed())
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<AmenityOrder> getSortedAmenityOrders(SortType sortType) {
+    public List<AmenityOrder> getSortedAmenityOrders(SortType sortType) throws IllegalArgumentException {
         Objects.requireNonNull(sortType, "Sort type cannot be null");
 
-        Comparator<AmenityOrder> comparator = switch (sortType) {
+        Comparator<AmenityOrder> comparator = createAmenityOrdersComparator(sortType);
+        return sortAmenityOrders(comparator);
+    }
+
+    private Comparator<AmenityOrder> createAmenityOrdersComparator(SortType sortType) {
+        return switch (sortType) {
             case DATE_END -> new DateAmenComparator();
             case PRICE -> new PriceAmenComparator();
             case NONE -> (a, b) -> 0;
             default -> throw new IllegalArgumentException("Unsupported sort type for amenities: " + sortType);
         };
+    }
 
+    private List<AmenityOrder> sortAmenityOrders(Comparator<AmenityOrder> comparator) {
         return amenityOrders.stream()
                 .sorted(comparator.reversed())
                 .collect(Collectors.toList());

@@ -1,13 +1,13 @@
 package UI.action.amenity;
 
+import Controller.ManagerHotel;
 import UI.action.Action;
 import enums.SortType;
-import Controller.ManagerHotel;
 
-public class getAllAmenitiesSortedByPriceAction implements Action {
+public class showAmenitiesSortedByPriceAction implements Action {
     private final ManagerHotel manager;
 
-    public getAllAmenitiesSortedByPriceAction(ManagerHotel manager) {
+    public showAmenitiesSortedByPriceAction(ManagerHotel manager) {
         this.manager = manager;
     }
 

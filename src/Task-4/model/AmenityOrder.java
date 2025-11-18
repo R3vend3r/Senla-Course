@@ -1,6 +1,5 @@
 package model;
 
-import interfaceClass.*;
 import java.util.Date;
 
 public class AmenityOrder extends Order {

@@ -1,204 +1,216 @@
 package UI.action_factory;
 
+import Controller.ManagerHotel;
 import UI.action.Action;
 import UI.action.amenity.*;
 import UI.action.client.*;
 import UI.action.order.evictClientAction;
-import UI.action.order.getAllCompletedBookingsAction;
+import UI.action.order.showAllCompletedBookingsAction;
 import UI.action.order.settleClientAction;
 import UI.action.order.showTotalRevenueAction;
 import UI.action.room.*;
-import Controller.ManagerHotel;
 
 public class ActionFactoryController implements ActionFactory {
-    private final ManagerHotel actionFactoryController;
+    private final ManagerHotel managerHotel;
 
-    public ActionFactoryController(ManagerHotel command) {
-        this.actionFactoryController = command;
+    public ActionFactoryController(ManagerHotel managerHotel) {
+        this.managerHotel = managerHotel;
     }
 
+    // Клиенты
     @Override
     public Action settleClientAction() {
-        return new settleClientAction(actionFactoryController);
+        return new settleClientAction(managerHotel);
     }
 
     @Override
     public Action evictClientAction() {
-        return new evictClientAction(actionFactoryController);
+        return new evictClientAction(managerHotel);
     }
 
     @Override
     public Action findClientByIdAction() {
-        return new findClientByIdAction(actionFactoryController);
+        return new findClientByIdAction(managerHotel);
     }
 
+    // Комнаты - управление
     @Override
     public Action addRoomAction() {
-        return new addRoomAction(actionFactoryController);
+        return new addRoomAction(managerHotel);
     }
 
     @Override
     public Action changeRoomStatusAction() {
-        return new changeRoomStatusAction(actionFactoryController);
+        return new changeRoomStatusAction(managerHotel);
     }
 
     @Override
     public Action updateRoomPriceAction() {
-        return new updateRoomPriceAction(actionFactoryController);
+        return new updateRoomPriceAction(managerHotel);
+    }
+
+    // Комнаты - просмотр
+    @Override
+    public Action showAllRoomsAction() {
+        return new showAllRoomsAction(managerHotel);
     }
 
     @Override
-    public Action getAllRoomsAction() {
-        return new getAllRoomsAction(actionFactoryController);
+    public Action showAllAvailableRoomsAction() {
+        return new showAllAvailableRoomsAction(managerHotel);
+    }
+
+    // Комнаты - сортировка всех
+    @Override
+    public Action showRoomsSortedByPriceAction() {
+        return new showRoomsSortedByPriceAction(managerHotel);
     }
 
     @Override
-    public Action getAllCompletedBookingsAction() {
-        return new getAllCompletedBookingsAction(actionFactoryController);
+    public Action showRoomsSortedByCapacityAction() {
+        return new showRoomsSortedByCapacityAction(managerHotel);
     }
 
+    @Override
+    public Action showRoomsSortedByStarsAction() {
+        return new showRoomsSortedByStarsAction(managerHotel);
+    }
+
+    @Override
+    public Action showRoomsSortedByTypeAction() {
+        return new showRoomsSortedByTypeAction(managerHotel);
+    }
+
+    // Комнаты - сортировка доступных
+    @Override
+    public Action showAvailableRoomsSortedByPriceAction() {
+        return new showAvailableRoomsSortedByPriceAction(managerHotel);
+    }
+
+    @Override
+    public Action showAvailableRoomsSortedByCapacityAction() {
+        return new showAvailableRoomsSortedByCapacityAction(managerHotel);
+    }
+
+    @Override
+    public Action showAvailableRoomsSortedByStarsAction() {
+        return new showAvailableRoomsSortedByStarsAction(managerHotel);
+    }
+
+    @Override
+    public Action showAvailableRoomsSortedByTypeAction() {
+        return new showAvailableRoomsSortedByTypeAction(managerHotel);
+    }
+
+    // Комнаты - дополнительные операции
     @Override
     public Action checkRoomAvailabilityAction() {
-        return new checkRoomAvailabilityAction(actionFactoryController);
+        return new checkRoomAvailabilityAction(managerHotel);
     }
 
     @Override
-    public Action addAmenityToClientAction() {
-        return new addAmenityToClientAction(actionFactoryController);
+    public Action showRoomDetailsAction() {
+        return new showRoomDetailsAction(managerHotel);
     }
 
     @Override
-    public Action getAllAvailableRoomsAction() {
-        return new getAllAvailableRoomsAction(actionFactoryController);
+    public Action showAvailableRoomsByDateAction() {
+        return new showAvailableRoomsByDateAction(managerHotel);
+    }
+
+    // Клиенты - просмотр и сортировка
+    @Override
+    public Action showClientsSortedByNameAction() {
+        return new showClientsSortedByNameAction(managerHotel);
     }
 
     @Override
-    public Action getRoomDetailsAction() {
-        return new getRoomDetailsAction(actionFactoryController);
+    public Action showClientsSortedByCheckoutDateAction() {
+        return new showClientsSortedByCheckoutDateAction(managerHotel);
     }
 
     @Override
-    public Action getAllClientsSortedByAlphabetAction() {
-        return new getAllClientsSortedByAlphabetAction(actionFactoryController);
+    public Action showAllClientsAction() {
+        return new showAllClientsAction(managerHotel);
     }
 
-    @Override
-    public Action getAllClientsSortedByDateEndAction() {
-        return new getAllClientsSortedByDateEndAction(actionFactoryController);
-    }
-
-    @Override
-    public Action getAllRoomsSortedByTypeAction() {
-        return new getAllRoomsSortedByTypeAction(actionFactoryController);
-    }
-
-    @Override
-    public Action getAllClientsSortedByNoneAction() {
-        return new getAllClientsSortedByNoneAction(actionFactoryController);
-    }
-
-    @Override
-    public Action getAmenitiesClientSortedByDateAction() {
-        return new getAmenitiesClientSortedByDateAction(actionFactoryController);
-    }
-
-    @Override
-    public Action getAmenitiesClientSortedByPriceAction() {
-        return new getAmenitiesClientSortedByPriceAction(actionFactoryController);
-    }
-
-    @Override
-    public Action getAmenitiesClientSortedByNoneAction() {
-        return new getAmenitiesClientSortedByNoneAction(actionFactoryController);
-    }
-
-    @Override
-    public Action getAvailableRoomsByDateAction() {
-        return new getAvailableRoomsByDateAction(actionFactoryController);
-    }
-
-    @Override
-    public Action getAllRoomsSortedByPriceAction() {
-        return new getAllRoomsSortedByPriceAction(actionFactoryController);
-    }
-
-    @Override
-    public Action getAllAvailableRoomsSortedByTypeAction() {
-        return new getAllAvailableRoomsSortedByTypeAction(actionFactoryController);
-    }
-
-    @Override
-    public Action getAllRoomsSortedByCapacityAction() {
-        return new getAllRoomsSortedByCapacityAction(actionFactoryController);
-    }
-
-    @Override
-    public Action getAllRoomsSortedByStarsAction() {
-        return new getAllRoomsSortedByStarsAction(actionFactoryController);
-    }
-
-    @Override
-    public Action getAllAvailableRoomsSortedByPriceAction() {
-        return new getAllAvailableRoomsSortedByPriceAction(actionFactoryController);
-    }
-
-    @Override
-    public Action getAllAvailableRoomsSortedByCapacityAction() {
-        return new getAllAvailableRoomsSortedByCapacityAction(actionFactoryController);
-    }
-
+    // Услуги - управление
     @Override
     public Action addAmenityAction() {
-        return new addAmenityAction(actionFactoryController);
+        return new addAmenityAction(managerHotel);
     }
 
     @Override
     public Action updateAmenityPriceAction() {
-        return new updateAmenityPriceAction(actionFactoryController);
+        return new updateAmenityPriceAction(managerHotel);
     }
 
     @Override
-    public Action getAllAmenityAction() {
-        return new getAllAmenityAction(actionFactoryController);
+    public Action addAmenityToClientAction() {
+        return new addAmenityToClientAction(managerHotel);
     }
 
     @Override
-    public Action getAllAmenitiesSortedByNameAction() {
-        return new getAllAmenitiesSortedByNameAction(actionFactoryController);
+    public Action showAllAmenitiesAction() {
+        return new showAllAmenitiesAction(managerHotel);
+    }
+
+    // Услуги клиентов
+    @Override
+    public Action showClientAmenitiesSortedByDateAction() {
+        return new showClientAmenitiesSortedByDateAction(managerHotel);
     }
 
     @Override
-    public Action getAllAvailableRoomsSortedByStarsAction() {
-        return new getAllAvailableRoomsSortedByStarsAction(actionFactoryController);
+    public Action showClientAmenitiesSortedByPriceAction() {
+        return new showClientAmenitiesSortedByPriceAction(managerHotel);
     }
 
     @Override
-    public Action getAllAmenitiesSortedByPriceAction() {
-        return new getAllAmenitiesSortedByPriceAction(actionFactoryController);
+    public Action showClientAmenitiesAction() {
+        return new showClientAmenitiesAction(managerHotel);
+    }
+
+    // Услуги - сортировка
+    @Override
+    public Action showAmenitiesSortedByPriceAction() {
+        return new showAmenitiesSortedByPriceAction(managerHotel);
     }
 
     @Override
-    public Action getLastThreeRoomClientsAction() {
-        return new getLastThreeRoomClientsAction(actionFactoryController);
+    public Action showAmenitiesSortedByNameAction() {
+        return new showAmenitiesSortedByNameAction(managerHotel);
+    }
+
+    // Отчеты и аналитика
+    @Override
+    public Action showLastThreeRoomBookingsAction() {
+        return new showLastThreeRoomBookingsAction(managerHotel);
     }
 
     @Override
     public Action calculateRoomPaymentAction() {
-        return new calculateRoomPaymentAction(actionFactoryController);
+        return new calculateRoomPaymentAction(managerHotel);
     }
 
     @Override
-    public Action getTotalServicedClientAction() {
-        return new getTotalServicedClientAction(actionFactoryController);
+    public Action showClientCountAction() {
+        return new showClientCountAction(managerHotel);
     }
 
     @Override
     public Action showTotalRevenueAction() {
-        return new showTotalRevenueAction(actionFactoryController);
+        return new showTotalRevenueAction(managerHotel);
     }
 
     @Override
-    public Action getTotalCountAvailableRooms() {
-        return new getTotalCountAvailableRooms(actionFactoryController);
+    public Action showAvailableRoomsCountAction() {
+        return new showAvailableRoomsCountAction(managerHotel);
+    }
+
+    // Бронирования
+    @Override
+    public Action showAllCompletedBookingsAction() {
+        return new showAllCompletedBookingsAction(managerHotel);
     }
 }
