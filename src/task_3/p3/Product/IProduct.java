@@ -1,9 +1,0 @@
-package Product;
-
-import ProductPart.IProductPart;
-
-public interface IProduct {
-    void installFirstPart(IProductPart part1);
-    void installSecondPart(IProductPart part2);
-    void installThirdPart(IProductPart part3);
-}
