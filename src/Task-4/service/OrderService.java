@@ -1,44 +1,69 @@
 package service;
 
 import enums.SortType;
+import interfaceClass.IOrderRepository;
 import model.*;
+
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class OrderService {
-    private final OrderCol orderCol;
+    private final IOrderRepository orderRepository;
 
-    public OrderService() {
-        this.orderCol = new OrderCol();
+    public OrderService(IOrderRepository orderRepository) {
+        this.orderRepository = Objects.requireNonNull(orderRepository, "OrderRepository cannot be null");
     }
 
-    public void createRoomOrder(Client client, Room room, Date checkInDate, Date checkOut) {
-        orderCol.checkIn(client, room, checkInDate, checkOut);
+    public void createRoomBooking(Client client, Room room, Date checkInDate, Date checkOutDate) {
+        orderRepository.createRoomBooking(client, room, checkInDate, checkOutDate);
     }
 
-    public void createServiceOrder(Client client, Amenity service, Date date) {
-        orderCol.addService(client, service, date);
+    public void addAmenityToBooking(int roomNumber, Amenity amenity, Date serviceDate) {
+        RoomBooking booking = getActiveBookingForRoom(roomNumber);
+        AmenityOrder order = createAmenityOrder(booking, amenity, serviceDate);
+        addOrderToBooking(booking, order);
     }
 
-    public void completeRoomOrder(int roomNumber, Date checkOutDate) {
-        orderCol.checkOut(roomNumber, checkOutDate);
+    private RoomBooking getActiveBookingForRoom(int roomNumber) {
+        return orderRepository.findActiveBookingByRoom(roomNumber)
+                .orElseThrow(() -> new IllegalArgumentException("No active booking for room " + roomNumber));
     }
 
-    // Универсальный метод для сортировки
-    public List<Order> getSortedOrders(SortType sortType) {
-        return orderCol.getSortedOrders(sortType);
-    }
-    public List<Order>  getSortedAmenities(SortType sortType){
-        return orderCol.getSortedAmenities(sortType);
+    private AmenityOrder createAmenityOrder(RoomBooking booking, Amenity amenity, Date serviceDate) {
+        return orderRepository.addAmenityOrder(booking.getClient(), amenity, serviceDate);
     }
 
-    // Специальные методы без изменений
-    public List<Order> getLastThreeRoomClients(int roomNumber) {
-        return orderCol.getLastThreeClientsForRoom(roomNumber);
+    private void addOrderToBooking(RoomBooking booking, AmenityOrder order) {
+        booking.addService(order);
     }
 
-    public int countActiveClients() {
-        return orderCol.countActiveClients();
+    public void completeRoomBooking(int roomNumber, Date checkOutDate) {
+        orderRepository.completeRoomBooking(roomNumber, checkOutDate);
+    }
+
+    public double calculateTotalIncome() {
+        return orderRepository.calculateTotalIncome();
+    }
+
+    public List<RoomBooking> getActiveBookingsSorted(SortType sortType) {
+        return orderRepository.getSortedBookings(sortType);
+    }
+
+    public double calculateAmenityCost(int roomNumber) {
+        return orderRepository.calculateAmenityCost(roomNumber);
+    }
+
+    public List<RoomBooking> getCompletedBookings() {
+        return orderRepository.getCompletedBookings();
+    }
+
+    public List<AmenityOrder> getAmenityOrdersSorted(SortType sortType) {
+        return orderRepository.getSortedAmenityOrders(sortType);
+    }
+
+    public List<RoomBooking> getLastThreeBookingsForRoom(int roomNumber) {
+        return orderRepository.getLastThreeBookingsForRoom(roomNumber);
     }
 }
